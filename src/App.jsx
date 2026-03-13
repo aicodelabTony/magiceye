@@ -15,6 +15,7 @@ const DRYNESS_LOG_KEY = 'magiceye-dryness-log-v1'
 const REMINDER_SETTINGS_KEY = 'magiceye-reminder-settings-v1'
 const FOCUS_SESSION_SECONDS = 90
 const PATTERN_ROTATE_SECONDS = 20
+const ANSWER_REVEAL_SECONDS = 3
 
 const STEREO_LEVELS = [
   {
@@ -41,16 +42,14 @@ const STEREO_LEVELS = [
 ]
 
 const STEREO_PATTERNS = [
-  { id: 'circle', name: '원을 봐요', detail: '둥근 원' },
-  { id: 'diamond', name: '다이아를 봐요', detail: '다이아 모양' },
-  { id: 'ring', name: '고리를 봐요', detail: '가운데가 빈 고리' },
-  { id: 'twin', name: '두 점을 봐요', detail: '나란히 놓인 두 점' },
-  { id: 'heart', name: '하트를 봐요', detail: '하트 모양' },
-  { id: 'star', name: '별을 봐요', detail: '다섯 갈래 별' },
-  { id: 'wave', name: '물결을 봐요', detail: '흐르는 물결' },
-  { id: 'stairs', name: '계단을 봐요', detail: '위로 올라가는 계단' },
-  { id: 'leaf', name: '잎을 봐요', detail: '길게 뻗은 잎' },
-  { id: 'butterfly', name: '나비를 봐요', detail: '양쪽으로 펼쳐진 나비' },
+  { id: 'cloud', name: '구름을 봐요', answer: '구름', detail: '구름 모양', imageSrc: '/%E1%84%80%E1%85%AE%E1%84%85%E1%85%B3%E1%86%B7.png' },
+  { id: 'star', name: '별을 봐요', answer: '별', detail: '별 모양', imageSrc: '/%E1%84%87%E1%85%A7%E1%86%AF.png' },
+  { id: 'sun', name: '태양을 봐요', answer: '태양', detail: '태양 모양', imageSrc: '/%E1%84%90%E1%85%A2%E1%84%8B%E1%85%A3%E1%86%BC.png' },
+  { id: 'arrow', name: '화살표를 봐요', answer: '화살표', detail: '화살표 모양', imageSrc: '/%E1%84%92%E1%85%AA%E1%84%89%E1%85%A1%E1%86%AF%E1%84%91%E1%85%AD.png' },
+  { id: 'abc', name: 'ABC를 봐요', answer: 'ABC', detail: '알파벳 ABC', imageSrc: '/ABC.png' },
+  { id: 'ai', name: 'AI를 봐요', answer: 'AI', detail: '알파벳 AI', imageSrc: '/AI.png' },
+  { id: 'dog', name: 'DOG를 봐요', answer: 'DOG', detail: '알파벳 DOG', imageSrc: '/DOG.png' },
+  { id: 'key', name: 'KEY를 봐요', answer: 'KEY', detail: '알파벳 KEY', imageSrc: '/KEY.png' },
 ]
 
 const DRYNESS_LEVELS = [
@@ -242,131 +241,6 @@ function getDrynessGuidance(record) {
   }
 
   return '지금처럼 편안한 상태를 유지할 수 있게 짧은 휴식을 이어가요.'
-}
-
-function createNoise(seed) {
-  let value = seed >>> 0
-
-  return () => {
-    value += 0x6d2b79f5
-    let t = value
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-function getPatternDepth(patternId, x, y, width, height, shift) {
-  const unit = Math.min(width, height) * 0.22
-  const nx = (x - width * 0.5) / unit
-  const ny = (y - height * 0.53) / unit
-  const radius = Math.sqrt(nx * nx + ny * ny)
-  const theta = Math.atan2(ny, nx)
-
-  let depthFactor = 0
-
-  switch (patternId) {
-    case 'circle':
-      depthFactor = radius < 1.02 ? 1 : 0
-      break
-    case 'diamond':
-      depthFactor = Math.abs(nx) + Math.abs(ny * 1.08) < 1.1 ? 1 : 0
-      break
-    case 'ring':
-      depthFactor = radius > 0.45 && radius < 0.98 ? 1 : 0
-      break
-    case 'twin':
-      depthFactor =
-        ((nx + 0.72) ** 2 + (ny + 0.02) ** 2 < 0.34) ||
-        ((nx - 0.72) ** 2 + (ny + 0.02) ** 2 < 0.34)
-          ? 1
-          : 0
-      break
-    case 'heart': {
-      const hx = nx * 0.92
-      const hy = ny * 1.05 - 0.18
-      depthFactor = ((hx * hx + hy * hy - 1) ** 3 - hx * hx * hy * hy * hy) < 0 ? 1 : 0
-      break
-    }
-    case 'star': {
-      const boundary = 0.58 + 0.2 * Math.cos(theta * 5)
-      depthFactor = radius < boundary ? 1 : 0
-      break
-    }
-    case 'wave':
-      depthFactor =
-        Math.abs(ny - 0.3 * Math.sin(nx * 2.8)) < 0.24 && Math.abs(nx) < 1.7 ? 1 : 0
-      break
-    case 'stairs':
-      depthFactor =
-        (nx > -1.55 && nx < 1.55 && ny > 0.62 && ny < 1.05) ||
-        (nx > -1.02 && nx < 1.02 && ny > 0.04 && ny < 0.47) ||
-        (nx > -0.48 && nx < 0.48 && ny > -0.54 && ny < -0.12)
-          ? 1
-          : 0
-      break
-    case 'leaf':
-      depthFactor = Math.abs(nx) + ny * ny * 0.72 < 1.02 && Math.abs(ny) < 1.12 ? 1 : 0
-      break
-    case 'butterfly':
-      depthFactor =
-        ((nx + 0.64) ** 2) / 0.42 + ((ny + 0.18) ** 2) / 0.3 < 1 ||
-        ((nx - 0.64) ** 2) / 0.42 + ((ny + 0.18) ** 2) / 0.3 < 1 ||
-        ((nx + 0.46) ** 2) / 0.26 + ((ny - 0.52) ** 2) / 0.2 < 1 ||
-        ((nx - 0.46) ** 2) / 0.26 + ((ny - 0.52) ** 2) / 0.2 < 1 ||
-        (Math.abs(nx) < 0.12 && ny > -0.82 && ny < 0.78)
-          ? 1
-          : 0
-      break
-    default:
-      depthFactor = radius < 1 ? 1 : 0
-  }
-
-  return depthFactor > 0 ? Math.max(1, Math.round(shift * depthFactor)) : 0
-}
-
-function drawMagicEye(canvas, level, pattern, seed) {
-  const context = canvas.getContext('2d')
-  if (!context) {
-    return
-  }
-
-  const width = canvas.width
-  const height = canvas.height
-  const image = context.createImageData(width, height)
-  const { data } = image
-  const random = createNoise(seed)
-
-  for (let y = 0; y < height; y += 1) {
-    const rowTone = 0.9 + random() * 0.15
-
-    for (let x = 0; x < width; x += 1) {
-      const index = (y * width + x) * 4
-
-      if (x < level.stripWidth) {
-        const base = 140 + Math.floor(random() * 90)
-        data[index] = Math.min(255, Math.floor(base * rowTone))
-        data[index + 1] = Math.min(255, Math.floor((base + 20) * rowTone))
-        data[index + 2] = Math.min(255, Math.floor((210 + random() * 40) * rowTone))
-        data[index + 3] = 255
-        continue
-      }
-
-      const depth = getPatternDepth(pattern.id, x, y, width, height, level.shift)
-      const sourceX = Math.max(0, x - level.stripWidth + depth)
-      const sourceIndex = (y * width + sourceX) * 4
-      data[index] = data[sourceIndex]
-      data[index + 1] = data[sourceIndex + 1]
-      data[index + 2] = data[sourceIndex + 2]
-      data[index + 3] = 255
-    }
-  }
-
-  context.putImageData(image, 0, 0)
-}
-
-function createSeed() {
-  return Math.floor(Math.random() * 1000000)
 }
 
 function clamp(value, min, max) {
@@ -946,14 +820,19 @@ function StereoScreen({
   pattern,
   onRefreshPattern,
   onExit,
-  canvasRef,
 }) {
+  const [isExpanded, setIsExpanded] = useState(false)
   const progress = Math.min(100, (elapsed / STEREO_SESSION_SECONDS) * 100)
   const patternIndex = STEREO_PATTERNS.findIndex((item) => item.id === pattern.id)
   const currentStep = patternIndex + 1
   const rotationElapsed = elapsed % PATTERN_ROTATE_SECONDS
   const secondsUntilNext = Math.max(1, Math.ceil(PATTERN_ROTATE_SECONDS - rotationElapsed))
   const isLastPattern = currentStep === STEREO_PATTERNS.length
+  const shouldRevealAnswer = secondsUntilNext <= ANSWER_REVEAL_SECONDS
+
+  useEffect(() => {
+    setIsExpanded(false)
+  }, [pattern.id])
 
   return (
     <main className="screen screen-session">
@@ -975,25 +854,26 @@ function StereoScreen({
         <div className="progress-track" aria-hidden="true">
           <div className="progress-fill" style={{ width: `${progress}%` }} />
         </div>
-        <p className="session-copy">
-          시선을 화면보다 조금 멀리 두고, {pattern.detail}가 떠오르는지 천천히 찾아봐요.
-          {` ${level.detail}`}
-        </p>
-
-        <div className="stereo-frame">
-          <canvas
-            ref={canvasRef}
-            className="stereo-canvas"
-            width={560}
-            height={360}
-          />
-        </div>
+        <button
+          className={`stereo-frame-button ${isExpanded ? 'stereo-frame-button-expanded' : ''}`}
+          type="button"
+          onClick={() => setIsExpanded((previous) => !previous)}
+        >
+          <div className={`stereo-frame ${isExpanded ? 'stereo-frame-expanded' : ''}`}>
+            <img className="stereo-canvas" src={pattern.imageSrc} alt={pattern.name} />
+            {shouldRevealAnswer ? (
+              <div className="stereo-answer-badge" aria-live="polite">
+                정답: {pattern.answer}
+              </div>
+            ) : null}
+          </div>
+        </button>
 
         <div className="pattern-rotation-card" aria-live="polite">
           <div className="pattern-rotation-head">
             <div>
-              <p className="eyebrow">지금 이 패턴을 봐요</p>
-              <strong>{pattern.name}</strong>
+              <p className="eyebrow">{shouldRevealAnswer ? '정답을 확인해요' : '지금은 정답을 기다려요'}</p>
+              <strong>{shouldRevealAnswer ? `${pattern.answer}예요` : '이미지에 집중해요'}</strong>
             </div>
             <span>{currentStep} / {STEREO_PATTERNS.length}</span>
           </div>
@@ -1004,9 +884,11 @@ function StereoScreen({
             />
           </div>
           <p className="pattern-rotation-copy">
-            {isLastPattern
-              ? '이 패턴까지 보면 루틴을 마무리해요.'
-              : `${secondsUntilNext}초 뒤에 다음 패턴으로 넘어가요.`}
+            {shouldRevealAnswer
+              ? (isLastPattern
+                  ? `${secondsUntilNext}초 뒤에 루틴을 마무리해요.`
+                  : `${secondsUntilNext}초 뒤에 다음 패턴으로 넘어가요.`)
+              : `${secondsUntilNext}초 뒤에 정답이 보여요.`}
           </p>
         </div>
       </section>
@@ -1030,7 +912,7 @@ function App() {
   const [focusElapsed, setFocusElapsed] = useState(0)
   const [focusTick, setFocusTick] = useState(0)
   const [stereoElapsed, setStereoElapsed] = useState(0)
-  const [stereoSeed, setStereoSeed] = useState(() => createSeed())
+  const [stereoPatternOffset, setStereoPatternOffset] = useState(0)
   const [stats, setStats] = useState(() => createEmptyStats())
   const [drynessRecords, setDrynessRecords] = useState([])
   const [reminderSettings, setReminderSettings] = useState(() => createDefaultReminderSettings())
@@ -1040,15 +922,12 @@ function App() {
   const [lastSession, setLastSession] = useState(null)
   const [notificationPermission, setNotificationPermission] = useState(() => getNotificationPermissionStatus())
   const [reminderToast, setReminderToast] = useState(null)
-  const canvasRef = useRef(null)
   const reminderTimeoutsRef = useRef([])
   const [runtimeContext] = useState(() => getRuntimeContext())
 
   const stereoLevel = STEREO_LEVELS[0]
-  const stereoPatternIndex = Math.min(
-    STEREO_PATTERNS.length - 1,
-    Math.floor(stereoElapsed / PATTERN_ROTATE_SECONDS),
-  )
+  const stereoPatternIndex =
+    (Math.floor(stereoElapsed / PATTERN_ROTATE_SECONDS) + stereoPatternOffset) % STEREO_PATTERNS.length
   const stereoPattern = STEREO_PATTERNS[stereoPatternIndex]
 
   useEffect(() => {
@@ -1242,14 +1121,6 @@ function App() {
     }
   }, [screen])
 
-  useEffect(() => {
-    if (screen !== 'stereo' || !canvasRef.current) {
-      return
-    }
-
-    drawMagicEye(canvasRef.current, stereoLevel, stereoPattern, stereoSeed)
-  }, [screen, stereoLevel, stereoPattern, stereoSeed])
-
   function handleStartFocus() {
     trackClick('magiceye_start_focus_click', {
       screen_name: screen,
@@ -1267,7 +1138,7 @@ function App() {
       selected_pattern: stereoPattern.id,
     })
     setStereoElapsed(0)
-    setStereoSeed(createSeed())
+    setStereoPatternOffset(0)
     setScreen('stereo')
   }
 
@@ -1284,7 +1155,7 @@ function App() {
       selected_level: stereoLevel.id,
       selected_pattern: stereoPattern.id,
     })
-    setStereoSeed(createSeed())
+    setStereoPatternOffset((previous) => (previous + 1) % STEREO_PATTERNS.length)
   }
 
   function handleSelectDrynessLevel(levelId) {
@@ -1440,7 +1311,6 @@ function App() {
           pattern={stereoPattern}
           onRefreshPattern={handleRefreshPattern}
           onExit={handleExitSession}
-          canvasRef={canvasRef}
         />
       ) : null}
     </div>
