@@ -16,6 +16,7 @@ const REMINDER_SETTINGS_KEY = 'magiceye-reminder-settings-v1'
 const FOCUS_SESSION_SECONDS = 90
 const PATTERN_ROTATE_SECONDS = 20
 const ANSWER_REVEAL_SECONDS = 3
+const ASSET_BASE_URL = import.meta.env.BASE_URL
 
 const STEREO_LEVELS = [
   {
@@ -42,14 +43,14 @@ const STEREO_LEVELS = [
 ]
 
 const STEREO_PATTERNS = [
-  { id: 'cloud', name: '구름을 봐요', answer: '구름', detail: '구름 모양', imageSrc: '/%E1%84%80%E1%85%AE%E1%84%85%E1%85%B3%E1%86%B7.png' },
-  { id: 'star', name: '별을 봐요', answer: '별', detail: '별 모양', imageSrc: '/%E1%84%87%E1%85%A7%E1%86%AF.png' },
-  { id: 'sun', name: '태양을 봐요', answer: '태양', detail: '태양 모양', imageSrc: '/%E1%84%90%E1%85%A2%E1%84%8B%E1%85%A3%E1%86%BC.png' },
-  { id: 'arrow', name: '화살표를 봐요', answer: '화살표', detail: '화살표 모양', imageSrc: '/%E1%84%92%E1%85%AA%E1%84%89%E1%85%A1%E1%86%AF%E1%84%91%E1%85%AD.png' },
-  { id: 'abc', name: 'ABC를 봐요', answer: 'ABC', detail: '알파벳 ABC', imageSrc: '/ABC.png' },
-  { id: 'ai', name: 'AI를 봐요', answer: 'AI', detail: '알파벳 AI', imageSrc: '/AI.png' },
-  { id: 'dog', name: 'DOG를 봐요', answer: 'DOG', detail: '알파벳 DOG', imageSrc: '/DOG.png' },
-  { id: 'key', name: 'KEY를 봐요', answer: 'KEY', detail: '알파벳 KEY', imageSrc: '/KEY.png' },
+  { id: 'cloud', name: '구름을 봐요', answer: '구름', detail: '구름 모양', imageSrc: `${ASSET_BASE_URL}cloud-image.png` },
+  { id: 'star', name: '별을 봐요', answer: '별', detail: '별 모양', imageSrc: `${ASSET_BASE_URL}star-image.png` },
+  { id: 'sun', name: '태양을 봐요', answer: '태양', detail: '태양 모양', imageSrc: `${ASSET_BASE_URL}sun-image.png` },
+  { id: 'arrow', name: '화살표를 봐요', answer: '화살표', detail: '화살표 모양', imageSrc: `${ASSET_BASE_URL}arrow-image.png` },
+  { id: 'abc', name: 'ABC를 봐요', answer: 'ABC', detail: '알파벳 ABC', imageSrc: `${ASSET_BASE_URL}abc-image.png` },
+  { id: 'ai', name: 'AI를 봐요', answer: 'AI', detail: '알파벳 AI', imageSrc: `${ASSET_BASE_URL}ai-image.png` },
+  { id: 'dog', name: 'DOG를 봐요', answer: 'DOG', detail: '알파벳 DOG', imageSrc: `${ASSET_BASE_URL}dog-image.png` },
+  { id: 'key', name: 'KEY를 봐요', answer: 'KEY', detail: '알파벳 KEY', imageSrc: `${ASSET_BASE_URL}key-image.png` },
 ]
 
 const DRYNESS_LEVELS = [
