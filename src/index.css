@@ -103,6 +103,7 @@ button {
 
 .screen-scroll-content {
   display: grid;
+  align-content: start;
   gap: 18px;
   flex: 1;
   min-height: 0;
@@ -111,7 +112,7 @@ button {
 }
 
 .screen-session {
-  justify-content: space-between;
+  justify-content: flex-start;
   overflow: auto;
 }
 
@@ -607,8 +608,7 @@ button {
 }
 
 .button,
-.ghost-button,
-.level-tab {
+.ghost-button {
   cursor: pointer;
   transition:
     transform 0.2s ease,
@@ -618,14 +618,12 @@ button {
 }
 
 .button:hover,
-.ghost-button:hover,
-.level-tab:hover {
+.ghost-button:hover {
   transform: translateY(-1px);
 }
 
 .button:active,
-.ghost-button:active,
-.level-tab:active {
+.ghost-button:active {
   transform: translateY(0);
 }
 
@@ -757,25 +755,6 @@ button {
     0 18px 30px rgba(47, 128, 255, 0.28);
 }
 
-.level-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.level-tab {
-  min-height: 44px;
-  border-radius: 14px;
-  background: var(--surface-muted);
-  color: var(--text-subtle);
-  font-weight: 700;
-}
-
-.level-tab-active {
-  background: var(--text-main);
-  color: #ffffff;
-}
-
 .pattern-rotation-card {
   display: grid;
   gap: 12px;
@@ -831,7 +810,9 @@ button {
 }
 
 .stereo-frame {
-  padding: 14px;
+  width: calc(100% + 40px);
+  margin-inline: -20px;
+  padding: 12px;
   border-radius: 28px;
   background: linear-gradient(180deg, #f9fbfe, #eef5fb);
 }
@@ -979,7 +960,6 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .button,
   .ghost-button,
-  .level-tab,
   .dryness-level-button,
   .dryness-chip,
   .bottom-tab-button,

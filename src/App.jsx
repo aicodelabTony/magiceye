@@ -608,27 +608,13 @@ function FocusTab({ onStart }) {
   )
 }
 
-function StereoTab({ level, onChangeLevel, onStart }) {
+function StereoTab({ level, onStart }) {
   return (
     <>
       <section className="panel-card">
         <div className="section-heading">
           <h2>매직아이 패턴을 봐요</h2>
-          <p>난이도를 고른 뒤 20초마다 바뀌는 패턴 10개를 순서대로 이어가요.</p>
-        </div>
-        <div className="level-tabs" role="tablist" aria-label="난이도 선택">
-          {STEREO_LEVELS.map((item) => (
-            <button
-              key={item.id}
-              className={`level-tab ${item.id === level.id ? 'level-tab-active' : ''}`}
-              type="button"
-              role="tab"
-              aria-selected={item.id === level.id}
-              onClick={() => onChangeLevel(item.id)}
-            >
-              {item.name}
-            </button>
-          ))}
+          <p>20초마다 바뀌는 패턴 10개를 순서대로 이어가며 눈의 초점을 천천히 풀어봐요.</p>
         </div>
       </section>
       <section className="exercise-grid" aria-label="매직아이 훈련">
@@ -844,7 +830,6 @@ function HomeScreen({
   onCloseMiniApp,
   onChangeTab,
   onChangeReminderTime,
-  onChangeStereoLevel,
   onRequestNotificationPermission,
   onSaveDrynessRecord,
   onSelectDrynessLevel,
@@ -862,7 +847,7 @@ function HomeScreen({
   }
 
   if (activeTab === 'stereo') {
-    content = <StereoTab level={stereoLevel} onChangeLevel={onChangeStereoLevel} onStart={onStartStereo} />
+    content = <StereoTab level={stereoLevel} onStart={onStartStereo} />
   }
 
   if (activeTab === 'care') {
@@ -959,7 +944,6 @@ function StereoScreen({
   elapsed,
   level,
   pattern,
-  onChangeLevel,
   onRefreshPattern,
   onExit,
   canvasRef,
@@ -996,19 +980,13 @@ function StereoScreen({
           {` ${level.detail}`}
         </p>
 
-        <div className="level-tabs" role="tablist" aria-label="난이도 선택">
-          {STEREO_LEVELS.map((item) => (
-            <button
-              key={item.id}
-              className={`level-tab ${item.id === level.id ? 'level-tab-active' : ''}`}
-              type="button"
-              role="tab"
-              aria-selected={item.id === level.id}
-              onClick={() => onChangeLevel(item.id)}
-            >
-              {item.name}
-            </button>
-          ))}
+        <div className="stereo-frame">
+          <canvas
+            ref={canvasRef}
+            className="stereo-canvas"
+            width={560}
+            height={360}
+          />
         </div>
 
         <div className="pattern-rotation-card" aria-live="polite">
@@ -1030,15 +1008,6 @@ function StereoScreen({
               ? '이 패턴까지 보면 루틴을 마무리해요.'
               : `${secondsUntilNext}초 뒤에 다음 패턴으로 넘어가요.`}
           </p>
-        </div>
-
-        <div className="stereo-frame">
-          <canvas
-            ref={canvasRef}
-            className="stereo-canvas"
-            width={560}
-            height={360}
-          />
         </div>
       </section>
 
@@ -1062,7 +1031,6 @@ function App() {
   const [focusTick, setFocusTick] = useState(0)
   const [stereoElapsed, setStereoElapsed] = useState(0)
   const [stereoSeed, setStereoSeed] = useState(() => createSeed())
-  const [stereoLevelId, setStereoLevelId] = useState(STEREO_LEVELS[0].id)
   const [stats, setStats] = useState(() => createEmptyStats())
   const [drynessRecords, setDrynessRecords] = useState([])
   const [reminderSettings, setReminderSettings] = useState(() => createDefaultReminderSettings())
@@ -1076,7 +1044,7 @@ function App() {
   const reminderTimeoutsRef = useRef([])
   const [runtimeContext] = useState(() => getRuntimeContext())
 
-  const stereoLevel = STEREO_LEVELS.find((item) => item.id === stereoLevelId) ?? STEREO_LEVELS[0]
+  const stereoLevel = STEREO_LEVELS[0]
   const stereoPatternIndex = Math.min(
     STEREO_PATTERNS.length - 1,
     Math.floor(stereoElapsed / PATTERN_ROTATE_SECONDS),
@@ -1319,15 +1287,6 @@ function App() {
     setStereoSeed(createSeed())
   }
 
-  function handleChangeStereoLevel(levelId) {
-    trackClick('magiceye_change_level_click', {
-      previous_level: stereoLevel.id,
-      next_level: levelId,
-    })
-    setStereoLevelId(levelId)
-    setStereoSeed(createSeed())
-  }
-
   function handleSelectDrynessLevel(levelId) {
     trackClick('magiceye_select_dryness_level_click', {
       level_id: levelId,
@@ -1460,7 +1419,6 @@ function App() {
           onCloseMiniApp={handleCloseMiniApp}
           onChangeTab={handleChangeTab}
           onChangeReminderTime={handleChangeReminderTime}
-          onChangeStereoLevel={handleChangeStereoLevel}
           onRequestNotificationPermission={handleRequestNotificationPermission}
           onSaveDrynessRecord={handleSaveDrynessRecord}
           onSelectDrynessLevel={handleSelectDrynessLevel}
@@ -1480,7 +1438,6 @@ function App() {
           elapsed={stereoElapsed}
           level={stereoLevel}
           pattern={stereoPattern}
-          onChangeLevel={handleChangeStereoLevel}
           onRefreshPattern={handleRefreshPattern}
           onExit={handleExitSession}
           canvasRef={canvasRef}
