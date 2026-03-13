@@ -8,7 +8,7 @@ export default defineConfig({
     icon: 'https://static.toss.im/appsintoss/0000/granite.png',
   },
   permissions: [],
-  outdir: 'dist',
+  outdir: 'doc',
   web: {
     host: '127.0.0.1',
     port: 5173,
