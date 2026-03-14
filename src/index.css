@@ -873,15 +873,25 @@ button {
 .bottom-tab-bar {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
   position: sticky;
   bottom: 0;
   z-index: 10;
-  padding: 10px 8px calc(var(--safe-bottom) + 8px);
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(18px);
+  margin:
+    6px
+    calc(var(--safe-right) * -1)
+    calc(var(--safe-bottom) * -1)
+    calc(var(--safe-left) * -1);
+  padding: 12px 14px calc(var(--safe-bottom) + 10px);
+  border-top: 1px solid rgba(15, 23, 42, 0.04);
+  border-radius: 28px 28px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.96));
+  box-shadow:
+    0 -8px 24px rgba(24, 39, 75, 0.06),
+    0 -1px 0 rgba(255, 255, 255, 0.8) inset;
+  backdrop-filter: blur(22px) saturate(1.08);
 }
 
 .bottom-tab-button {
@@ -889,22 +899,27 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  min-height: 56px;
-  padding: 4px 0;
-  border-radius: 16px;
+  gap: 6px;
+  min-height: 62px;
+  padding: 8px 0 6px;
+  border-radius: 18px;
   background: transparent;
-  color: var(--text-subtle);
+  color: rgba(102, 112, 133, 0.78);
   font-size: 11px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   cursor: pointer;
   transition:
+    box-shadow 0.24s ease,
     background-color 0.2s ease,
     color 0.2s ease,
+    opacity 0.2s ease,
     transform 0.2s ease;
 }
 
 .bottom-tab-button:hover {
+  background: rgba(47, 128, 255, 0.05);
+  color: rgba(23, 32, 51, 0.88);
   transform: translateY(-1px);
 }
 
@@ -913,21 +928,25 @@ button {
 }
 
 .bottom-tab-button-active {
-  background: rgba(47, 128, 255, 0.1);
-  color: var(--brand);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(240, 246, 255, 0.94));
+  color: var(--text-main);
+  box-shadow:
+    0 10px 22px rgba(47, 128, 255, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.92) inset;
 }
 
 .bottom-tab-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
+  opacity: 0.92;
 }
 
 .bottom-tab-icon svg {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
 }
 
 @media (max-width: 480px) {
@@ -966,7 +985,7 @@ button {
   }
 
   .bottom-tab-button {
-    min-height: 54px;
+    min-height: 58px;
   }
 }
 

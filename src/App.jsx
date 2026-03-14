@@ -1246,7 +1246,7 @@ function App() {
       screen_name: screen,
     })
 
-    await shareText('매직아이 루틴으로 짧게 눈을 풀어봐요.')
+    await shareText('매직아이 루틴으로 짧게 눈을 풀어봐요.\nintoss://magiceye')
   }
 
   async function handleOpenGuide() {
